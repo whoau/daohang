@@ -17,9 +17,9 @@ const App = {
     // 初始化小组件
     const settings = this.data.settings;
     if (settings.showWeather !== false) Widgets.initWeather();
-    if (settings.showMovie !== false) Widgets.initMovie();
-    if (settings.showBook !== false) Widgets.initBook();
-    if (settings.showMusic !== false) Widgets.initMusic();
+    //if (settings.showMovie !== false) Widgets.initMovie();
+   // if (settings.showBook !== false) Widgets.initBook();
+    //if (settings.showMusic !== false) Widgets.initMusic();
     if (settings.showHotTopics !== false) Widgets.initHotTopics();
     if (settings.showTodo !== false) Widgets.initTodo();
     if (settings.showBookmarks !== false) Widgets.initBookmarks();
@@ -670,10 +670,10 @@ const switchSettings = [
       if (settings.showGreeting) this.initGreeting();
     }
   }},
-  { id: 'showWeather', key: 'showWeather', callback: () => Widgets.applyWidgetSettings(settings) },
-  { id: 'showMovie', key: 'showMovie', callback: () => Widgets.applyWidgetSettings(settings) },
-  { id: 'showBook', key: 'showBook', callback: () => Widgets.applyWidgetSettings(settings) },
-  { id: 'showMusic', key: 'showMusic', callback: () => Widgets.applyWidgetSettings(settings) },
+ { id: 'showWeather', key: 'showWeather', callback: () => Widgets.applyWidgetSettings(settings) },
+ // { id: 'showMovie', key: 'showMovie', callback: () => Widgets.applyWidgetSettings(settings) },
+ // { id: 'showBook', key: 'showBook', callback: () => Widgets.applyWidgetSettings(settings) },
+ // { id: 'showMusic', key: 'showMusic', callback: () => Widgets.applyWidgetSettings(settings) },
   { id: 'showHotTopics', key: 'showHotTopics', callback: () => Widgets.applyWidgetSettings(settings) },
   { id: 'showTodo', key: 'showTodo', callback: () => Widgets.applyWidgetSettings(settings) },
   { id: 'showBookmarks', key: 'showBookmarks', callback: () => Widgets.applyWidgetSettings(settings) },
@@ -727,4 +727,5 @@ const switchSettings = [
 // 启动应用
 document.addEventListener('DOMContentLoaded', () => {
   App.init();
+
 });
