@@ -327,7 +327,7 @@ const API = {
       { url: 'https://api.vvhan.com/api/hotlist/toutiaoHot', type: 'toutiao' }
     ];
 
-    const LIMIT = 20;
+    const LIMIT = 5;
 
     await Promise.all(apis.map(async api => {
       try {
@@ -359,12 +359,7 @@ const API = {
       { title: '如何高效打造 AI 助手工作流？', url: 'https://www.zhihu.com', hot: '沸', index: 2 },
       { title: '年轻人如何平衡副业与生活？', url: 'https://www.zhihu.com', hot: '热', index: 3 },
       { title: '2024 年最值得入手的数码设备', url: 'https://www.zhihu.com', hot: '荐', index: 4 },
-      { title: '在一线城市怎样实现存钱自由？', url: 'https://www.zhihu.com', hot: '热', index: 5 },
-      { title: '长期坚持阅读会发生什么变化？', url: 'https://www.zhihu.com', hot: '荐', index: 6 },
-      { title: '热门新能源车型真实体验如何？', url: 'https://www.zhihu.com', hot: '热', index: 7 },
-      { title: '为什么大家都在练习数理思维？', url: 'https://www.zhihu.com', hot: '新', index: 8 },
-      { title: '下一代职场技能应该如何准备？', url: 'https://www.zhihu.com', hot: '热', index: 9 },
-      { title: '出国旅行有哪些高性价比路线？', url: 'https://www.zhihu.com', hot: '荐', index: 10 }
+      { title: '在一线城市怎样实现存钱自由？', url: 'https://www.zhihu.com', hot: '热', index: 5 }
     ];
 
     const weibo = [
@@ -372,12 +367,7 @@ const API = {
       { title: '新剧开播口碑逆袭', url: 'https://s.weibo.com/top/summary', hot: '热', index: 2 },
       { title: '航天员出差记 Vlog 更新', url: 'https://s.weibo.com/top/summary', hot: '荐', index: 3 },
       { title: '又一城市宣布发放消费券', url: 'https://s.weibo.com/top/summary', hot: '新', index: 4 },
-      { title: '这届年轻人开始随手拍云', url: 'https://s.weibo.com/top/summary', hot: '热', index: 5 },
-      { title: '夏日限定奶茶配方出炉', url: 'https://s.weibo.com/top/summary', hot: '荐', index: 6 },
-      { title: '高考分数线陆续公布', url: 'https://s.weibo.com/top/summary', hot: '沸', index: 7 },
-      { title: '某音乐节官宣阵容', url: 'https://s.weibo.com/top/summary', hot: '热', index: 8 },
-      { title: '户外露营再掀热潮', url: 'https://s.weibo.com/top/summary', hot: '荐', index: 9 },
-      { title: '三伏天防晒黑科技', url: 'https://s.weibo.com/top/summary', hot: '热', index: 10 }
+      { title: '这届年轻人开始随手拍云', url: 'https://s.weibo.com/top/summary', hot: '热', index: 5 }
     ];
 
     const toutiao = [
@@ -385,12 +375,7 @@ const API = {
       { title: '多地 GDP 半年报公布', url: 'https://www.toutiao.com', hot: '荐', index: 2 },
       { title: '中国科研团队再获突破', url: 'https://www.toutiao.com', hot: '热', index: 3 },
       { title: '数字人民币试点场景扩容', url: 'https://www.toutiao.com', hot: '新', index: 4 },
-      { title: '暑期档电影预售成绩抢眼', url: 'https://www.toutiao.com', hot: '热', index: 5 },
-      { title: 'AI 赋能制造业案例盘点', url: 'https://www.toutiao.com', hot: '荐', index: 6 },
-      { title: '大模型安全规范征求意见', url: 'https://www.toutiao.com', hot: '热', index: 7 },
-      { title: '全球芯片格局迎来变化', url: 'https://www.toutiao.com', hot: '荐', index: 8 },
-      { title: '可持续出行成为城市新指标', url: 'https://www.toutiao.com', hot: '热', index: 9 },
-      { title: '中国选手刷新世界纪录', url: 'https://www.toutiao.com', hot: '沸', index: 10 }
+      { title: '暑期档电影预售成绩抢眼', url: 'https://www.toutiao.com', hot: '热', index: 5 }
     ];
 
     const data = { zhihu, weibo, toutiao };
