@@ -1338,6 +1338,79 @@ body {
   font-size: 11px;
 }
 
+/* ==================== 网页游戏小组件 ==================== */
+.games-widget {
+  grid-column: span 1;
+}
+
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+}
+
+.game-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 10px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  text-decoration: none;
+  color: var(--text-color);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.game-item::before {
+  content: '';
+  position: absolute;
+  inset: -20px;
+  background: radial-gradient(circle at top, var(--game-color, #ffcc00), transparent 60%);
+  opacity: 0.12;
+  z-index: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.game-item:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+}
+
+.game-item:hover::before {
+  opacity: 0.25;
+  transform: translateY(-4px);
+}
+
+.game-icon {
+  font-size: 30px;
+  margin-bottom: 6px;
+  position: relative;
+  z-index: 1;
+}
+
+.game-name {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 3px;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.game-desc {
+  font-size: 10px;
+  color: var(--text-secondary);
+  text-align: center;
+  opacity: 0.85;
+  position: relative;
+  z-index: 1;
+}
+
 /* ==================== 热榜小组件 ==================== */
 .hot-topics-widget {
   grid-column: span 1;
