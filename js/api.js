@@ -141,9 +141,9 @@ const API = {
     if (!movie) {
       // 如果API失败，返回备用电影
       const fallbackMovies = [
-        { title: '霸王别姬', originalTitle: '霸王别姬', year: '1993', rating: 9.6, genre: '剧情 / 爱情', director: '陈凯歌', poster: 'https://img2.doubanio.com/view/photo/s_ratio_poster/public/p1910813120.jpg', quote: '风华绝代，人生如戏。' },
-        { title: '活着', originalTitle: '活着', year: '1994', rating: 9.3, genre: '剧情 / 历史', director: '张艺谋', poster: 'https://img2.doubanio.com/view/photo/s_ratio_poster/public/p2513253791.jpg', quote: '人是为了活着本身而活着的。' },
-        { title: '大话西游之大圣娶亲', originalTitle: '大话西游之大圣娶亲', year: '1995', rating: 9.2, genre: '喜剧 / 爱情', director: '刘镇伟', poster: 'https://img2.doubanio.com/view/photo/s_ratio_poster/public/p2455050536.jpg', quote: '曾经有一份真诚的爱情放在我面前。' }
+        { title: '霸王别姬', originalTitle: '霸王别姬', year: '1993', rating: 9.6, genre: '剧情 / 爱情', director: '陈凯歌', poster: 'https://picsum.photos/seed/movie-bawang/300/450.jpg', quote: '风华绝代，人生如戏。' },
+        { title: '活着', originalTitle: '活着', year: '1994', rating: 9.3, genre: '剧情 / 历史', director: '张艺谋', poster: 'https://picsum.photos/seed/movie-huozhe/300/450.jpg', quote: '人是为了活着本身而活着的。' },
+        { title: '大话西游之大圣娶亲', originalTitle: '大话西游之大圣娶亲', year: '1995', rating: 9.2, genre: '喜剧 / 爱情', director: '刘镇伟', poster: 'https://picsum.photos/seed/movie-dahuaxiyou/300/450.jpg', quote: '曾经有一份真诚的爱情放在我面前。' }
       ];
       const fallbackMovie = fallbackMovies[Math.floor(Math.random() * fallbackMovies.length)];
       
@@ -174,7 +174,7 @@ const API = {
             rating: movie.imdbID ? 8.5 : (Math.random() * 2 + 7).toFixed(1),
             genre: movie.genres?.join(' / ') || '剧情',
             director: '导演',
-            poster: movie.poster || 'https://picsum.photos/300/450',
+            poster: movie.poster && movie.poster.startsWith('http') ? movie.poster : `https://picsum.photos/seed/movie-${Date.now()}/300/450.jpg`,
             quote: movie.description || '好电影总能治愈生活。',
             fullPlot: movie.description || '好电影总能治愈生活。'
           };
@@ -214,9 +214,9 @@ const API = {
     if (!book) {
       // 如果API失败，返回备用书籍
       const fallbackBooks = [
-        { title: '活着', author: '余华', category: '现代文学', rating: 9.4, cover: 'https://img2.doubanio.com/view/subject/l/public/s29053580.jpg', description: '福贵悲惨的人生遭遇，对生命意义的深刻探索。' },
-        { title: '三体', author: '刘慈欣', category: '科幻小说', rating: 9.3, cover: 'https://img2.doubanio.com/view/subject/l/public/s2768378.jpg', description: '地球文明与三体文明的生死较量。' },
-        { title: '围城', author: '钱钟书', category: '现代文学', rating: 9.0, cover: 'https://img1.doubanio.com/view/subject/l/public/s1046265.jpg', description: '婚姻是座围城，城外的人想进去，城里的人想出来。' }
+        { title: '活着', author: '余华', category: '现代文学', rating: 9.4, cover: 'https://picsum.photos/seed/book-huozhe/300/450.jpg', description: '福贵悲惨的人生遭遇，对生命意义的深刻探索。' },
+        { title: '三体', author: '刘慈欣', category: '科幻小说', rating: 9.3, cover: 'https://picsum.photos/seed/book-santi/300/450.jpg', description: '地球文明与三体文明的生死较量。' },
+        { title: '围城', author: '钱钟书', category: '现代文学', rating: 9.0, cover: 'https://picsum.photos/seed/book-weicheng/300/450.jpg', description: '婚姻是座围城，城外的人想进去，城里的人想出来。' }
       ];
       const fallbackBook = fallbackBooks[Math.floor(Math.random() * fallbackBooks.length)];
       
@@ -245,7 +245,7 @@ const API = {
             author: doc.author_name?.[0] || '作者',
             category: doc.subject?.[0] || '文学',
             rating: (Math.random() * 2 + 7).toFixed(1),
-            cover: doc.cover_i ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg` : 'https://picsum.photos/300/450',
+            cover: doc.cover_i ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg` : `https://picsum.photos/seed/book-${Date.now()}/300/450.jpg`,
             description: doc.title ? `${doc.title}是一部优秀的文学作品。` : '这是一部值得阅读的好书。'
           };
         }
@@ -284,9 +284,9 @@ const API = {
     if (!music) {
       // 如果API失败，返回备用音乐
       const fallbackMusic = [
-        { title: '晴天', artist: '周杰伦', album: '叶惠美', year: '2003', cover: 'https://y.qq.com/music/photo_new/T002R300x300M000000MkMni19ClKG_3.jpg', tags: ['流行', '华语'] },
-        { title: '海阔天空', artist: 'Beyond', album: '乐与怒', year: '1993', cover: 'https://y.qq.com/music/photo_new/T002R300x300M000003aQYLo2x8izP_1.jpg', tags: ['摇滚', '粤语'] },
-        { title: '夜曲', artist: '周杰伦', album: '十一月的萧邦', year: '2005', cover: 'https://y.qq.com/music/photo_new/T002R300x300M000002jLGWe16Tf1H_1.jpg', tags: ['流行', '钢琴'] }
+        { title: '晴天', artist: '周杰伦', album: '叶惠美', year: '2003', cover: 'https://picsum.photos/seed/music-qingtian/300/300.jpg', tags: ['流行', '华语'] },
+        { title: '海阔天空', artist: 'Beyond', album: '乐与怒', year: '1993', cover: 'https://picsum.photos/seed/music-haikuotian/300/300.jpg', tags: ['摇滚', '粤语'] },
+        { title: '夜曲', artist: '周杰伦', album: '十一月的萧邦', year: '2005', cover: 'https://picsum.photos/seed/music-yequ/300/300.jpg', tags: ['流行', '钢琴'] }
       ];
       const fallbackMusicItem = fallbackMusic[Math.floor(Math.random() * fallbackMusic.length)];
       
@@ -315,7 +315,7 @@ const API = {
             artist: song.artistName || '艺术家',
             album: song.collectionName || '专辑',
             year: new Date(song.releaseDate).getFullYear().toString(),
-            cover: song.artworkUrl100?.replace('100x100', '300x300') || 'https://picsum.photos/300/300',
+            cover: song.artworkUrl100?.replace('100x100', '300x300') || `https://picsum.photos/seed/music-${Date.now()}/300/300.jpg`,
             tags: ['热门', song.primaryGenreName || '音乐']
           };
         }

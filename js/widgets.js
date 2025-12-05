@@ -3,6 +3,28 @@ const Widgets = {
   location: null,
   hotTopicsData: null,
 
+  // 通用图片重试机制
+  retryImageLoad(imgElement, fallbackUrl) {
+    const retryCount = imgElement.dataset.retryCount || 0;
+    const maxRetries = 2;
+    
+    if (retryCount < maxRetries) {
+      imgElement.dataset.retryCount = parseInt(retryCount) + 1;
+      setTimeout(() => {
+        imgElement.src = fallbackUrl || `https://picsum.photos/seed/fallback-${Date.now()}/300/450.jpg`;
+      }, 1000 * (retryCount + 1));
+    } else {
+      // 达到最大重试次数，显示fallback
+      imgElement.style.display = 'none';
+      const fallback = imgElement.nextElementSibling;
+      if (fallback && (fallback.classList.contains('movie-cover-fallback') || 
+                      fallback.classList.contains('book-cover-fallback') || 
+                      fallback.classList.contains('music-cover-fallback'))) {
+        fallback.style.display = 'flex';
+      }
+    }
+  },
+
   // ==================== 天气 ====================
   async initWeather() {
     const refreshBtn = document.getElementById('refreshWeather');
@@ -120,7 +142,8 @@ const Widgets = {
             <img class="movie-poster" 
               src="${movie.poster}" 
               alt="${movie.title}"
-              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+              onload="this.style.opacity='1';"
+              onerror="if(!this.dataset.retryCount) Widgets.retryImageLoad(this, 'https://picsum.photos/seed/movie-fallback/300/450.jpg'); else { this.style.display='none'; this.nextElementSibling.style.display='flex'; console.error('Movie poster failed to load:', this.src); }">
             <div class="movie-cover-fallback" style="display:none;">
               <i class="fas fa-film"></i>
             </div>
@@ -175,7 +198,9 @@ const Widgets = {
     const detailPlot = (movie.fullPlot || movie.quote || '故事梗概待更新。').trim();
 
     movieDetail.innerHTML = `
-      <div class="movie-detail-header" style="background-image: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(26,26,32,1)), url('${movie.poster}');"></div>
+      <div class="movie-detail-header" style="background-image: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(26,26,32,1)), url('${movie.poster}');">
+        <img src="${movie.poster}" style="display:none;" onerror="this.parentElement.style.backgroundImage='linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(26,26,32,1))';">
+      </div>
       <div class="movie-detail-info">
         <div class="movie-detail-title">${movie.title}</div>
         <div class="movie-detail-original">${movie.originalTitle} (${movie.year})</div>
@@ -218,7 +243,8 @@ const Widgets = {
                 <img class="book-cover" 
                   src="${book.cover}" 
                   alt="${book.title}"
-                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                  onload="this.style.opacity='1';"
+                  onerror="if(!this.dataset.retryCount) Widgets.retryImageLoad(this, 'https://picsum.photos/seed/book-fallback/300/450.jpg'); else { this.style.display='none'; this.nextElementSibling.style.display='flex'; console.error('Book cover failed to load:', this.src); }">
                 <div class="book-cover-fallback" style="display:none;">
                   <i class="fas fa-book"></i>
                 </div>
@@ -280,7 +306,8 @@ const Widgets = {
                 <img class="music-cover" 
                   src="${music.cover}" 
                   alt="${music.title}"
-                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                  onload="this.style.opacity='1';"
+                  onerror="if(!this.dataset.retryCount) Widgets.retryImageLoad(this, 'https://picsum.photos/seed/music-fallback/300/300.jpg'); else { this.style.display='none'; this.nextElementSibling.style.display='flex'; console.error('Music cover failed to load:', this.src); }">
                 <div class="music-cover-fallback" style="display:none;">
                   <i class="fas fa-music"></i>
                 </div>

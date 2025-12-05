@@ -30,7 +30,14 @@
     "https://api.douban.com/*",
     "https://music.163.com/*",
     "https://api.netease.com/*",
-    "https://cdn.jsdelivr.net/*"
+    "https://cdn.jsdelivr.net/*",
+    "https://*.doubanio.com/*",
+    "https://*.qq.com/*",
+    "https://y.qq.com/*",
+    "https://img1.doubanio.com/*",
+    "https://img2.doubanio.com/*",
+    "https://img3.doubanio.com/*",
+    "https://*.douban.com/*"
   ],
   "icons": {
     "16": "icons/icon16.png",
