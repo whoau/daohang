@@ -197,56 +197,81 @@ const API = {
     return null;
   },
 
-  // 书籍推荐 - 真实API，带3小时缓存
-  async getBookRecommendation() {
-    // 检查缓存
-    const cacheTime = await Storage.get('bookCacheTime') || 0;
-    const cached = await Storage.get('bookCache');
-    const now = Date.now();
+  // 汉语名言谚语
+  chineseProverbs: [
+    { text: '千里之行，始于足下。', author: '老子', source: '《道德经》', category: '励志' },
+    { text: '学而不思则罔，思而不学则殆。', author: '孔子', source: '《论语》', category: '学习' },
+    { text: '己所不欲，勿施于人。', author: '孔子', source: '《论语》', category: '修养' },
+    { text: '天行健，君子以自强不息。', author: '《周易》', source: '《周易·乾卦》', category: '励志' },
+    { text: '知之为知之，不知为不知，是知也。', author: '孔子', source: '《论语》', category: '学习' },
+    { text: '三人行，必有我师焉。', author: '孔子', source: '《论语》', category: '学习' },
+    { text: '欲穷千里目，更上一层楼。', author: '王之涣', source: '《登鹳雀楼》', category: '励志' },
+    { text: '读书破万卷，下笔如有神。', author: '杜甫', source: '《奉赠韦左丞丈二十二韵》', category: '学习' },
+    { text: '非淡泊无以明志，非宁静无以致远。', author: '诸葛亮', source: '《诫子书》', category: '修养' },
+    { text: '不以物喜，不以己悲。', author: '范仲淹', source: '《岳阳楼记》', category: '修养' },
+    { text: '业精于勤，荒于嬉；行成于思，毁于随。', author: '韩愈', source: '《进学解》', category: '学习' },
+    { text: '书山有路勤为径，学海无涯苦作舟。', author: '韩愈', source: '古训', category: '学习' },
+    { text: '少壮不努力，老大徒伤悲。', author: '《长歌行》', source: '汉乐府', category: '励志' },
+    { text: '宝剑锋从磨砺出，梅花香自苦寒来。', author: '古训', source: '古训', category: '励志' },
+    { text: '海纳百川，有容乃大。', author: '林则徐', source: '对联', category: '修养' },
+    { text: '路漫漫其修远兮，吾将上下而求索。', author: '屈原', source: '《离骚》', category: '励志' },
+    { text: '不积跬步，无以至千里；不积小流，无以成江海。', author: '荀子', source: '《劝学》', category: '励志' },
+    { text: '锲而舍之，朽木不折；锲而不舍，金石可镂。', author: '荀子', source: '《劝学》', category: '励志' },
+    { text: '穷则独善其身，达则兼济天下。', author: '孟子', source: '《孟子》', category: '修养' },
+    { text: '人无远虑，必有近忧。', author: '孔子', source: '《论语》', category: '智慧' },
+    { text: '工欲善其事，必先利其器。', author: '孔子', source: '《论语》', category: '智慧' },
+    { text: '温故而知新，可以为师矣。', author: '孔子', source: '《论语》', category: '学习' },
+    { text: '博学之，审问之，慎思之，明辨之，笃行之。', author: '《中庸》', source: '《礼记·中庸》', category: '学习' },
+    { text: '天下兴亡，匹夫有责。', author: '顾炎武', source: '《日知录》', category: '责任' },
+    { text: '先天下之忧而忧，后天下之乐而乐。', author: '范仲淹', source: '《岳阳楼记》', category: '责任' },
+    { text: '生于忧患，死于安乐。', author: '孟子', source: '《孟子》', category: '智慧' },
+    { text: '君子坦荡荡，小人长戚戚。', author: '孔子', source: '《论语》', category: '修养' },
+    { text: '知者不惑，仁者不忧，勇者不惧。', author: '孔子', source: '《论语》', category: '智慧' },
+    { text: '有志者事竟成。', author: '《后汉书》', source: '《后汉书》', category: '励志' },
+    { text: '纸上得来终觉浅，绝知此事要躬行。', author: '陆游', source: '《冬夜读书示子聿》', category: '实践' },
+    { text: '书到用时方恨少，事非经过不知难。', author: '陆游', source: '古训', category: '学习' },
+    { text: '古之立大事者，不惟有超世之才，亦必有坚韧不拔之志。', author: '苏轼', source: '《晁错论》', category: '励志' },
+    { text: '学无止境。', author: '荀子', source: '《劝学》', category: '学习' },
+    { text: '不经一番寒彻骨，怎得梅花扑鼻香。', author: '黄檗禅师', source: '《上堂开示颂》', category: '励志' },
+    { text: '长风破浪会有时，直挂云帆济沧海。', author: '李白', source: '《行路难》', category: '励志' },
+    { text: '问渠那得清如许，为有源头活水来。', author: '朱熹', source: '《观书有感》', category: '学习' },
+    { text: '横看成岭侧成峰，远近高低各不同。', author: '苏轼', source: '《题西林壁》', category: '智慧' },
+    { text: '会当凌绝顶，一览众山小。', author: '杜甫', source: '《望岳》', category: '励志' },
+    { text: '山重水复疑无路，柳暗花明又一村。', author: '陆游', source: '《游山西村》', category: '智慧' },
+    { text: '沉舟侧畔千帆过，病树前头万木春。', author: '刘禹锡', source: '《酬乐天扬州初逢席上见赠》', category: '智慧' }
+  ],
 
-    if (cached && (now - cacheTime) < RECOMMENDATION_CACHE_WINDOW) {
+  async getDailyProverb(forceNew = false) {
+    const todayKey = this.getDateKey();
+    const cached = await Storage.get('proverbCache');
+    const cacheDate = await Storage.get('proverbCacheDate');
+
+    if (!forceNew && cached && cacheDate === todayKey) {
       return cached;
     }
 
-    // 尝试从真实API获取书籍
-    const book = await this.fetchBookFromAPI();
-    
-    if (!book) {
-      // 如果API失败，返回备用书籍
-      const fallbackBooks = [
-        { title: '活着', author: '余华', category: '现代文学', rating: 9.4, cover: 'https://picsum.photos/seed/book-huozhe/300/450.jpg', description: '福贵悲惨的人生遭遇，对生命意义的深刻探索。' },
-        { title: '三体', author: '刘慈欣', category: '科幻小说', rating: 9.3, cover: 'https://picsum.photos/seed/book-santi/300/450.jpg', description: '地球文明与三体文明的生死较量。' },
-        { title: '围城', author: '钱钟书', category: '现代文学', rating: 9.0, cover: 'https://picsum.photos/seed/book-weicheng/300/450.jpg', description: '婚姻是座围城，城外的人想进去，城里的人想出来。' }
-      ];
-      const fallbackBook = fallbackBooks[Math.floor(Math.random() * fallbackBooks.length)];
-      
-      await Storage.set('bookCache', fallbackBook);
-      await Storage.set('bookCacheTime', now);
-      return fallbackBook;
+    let proverb = await this.fetchDailyProverbFromAPI();
+    if (!proverb) {
+      proverb = this.getFallbackProverb(forceNew);
     }
-    
-    // 保存到缓存
-    await Storage.set('bookCache', book);
-    await Storage.set('bookCacheTime', now);
 
-    return book;
+    await Storage.set('proverbCache', proverb);
+    await Storage.set('proverbCacheDate', todayKey);
+
+    return proverb;
   },
 
-  // 从真实API获取书籍
-  async fetchBookFromAPI() {
+  async fetchDailyProverbFromAPI() {
     const apis = [
       {
-        url: 'https://openlibrary.org/search.json?title=chinese&limit=10',
+        url: 'https://v1.hitokoto.cn/?c=d&encode=json',
         parse: (data) => {
-          if (!data.docs || data.docs.length === 0) return null;
-          const doc = data.docs[Math.floor(Math.random() * Math.min(5, data.docs.length))];
+          if (!data?.hitokoto) return null;
           return {
-            title: doc.title || '书籍标题',
-            author: doc.author_name?.[0] || '作者',
-            category: doc.subject?.[0] || '文学',
-            rating: (Math.random() * 2 + 7).toFixed(1),
-            cover: doc.cover_i ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg` : `https://picsum.photos/seed/book-${Date.now()}/300/450.jpg`,
-            description: doc.title ? `${doc.title}是一部优秀的文学作品。` : '这是一部值得阅读的好书。'
+            text: data.hitokoto.trim(),
+            author: data.from_who || '',
+            source: data.from ? `《${data.from}》` : '佚名',
+            category: '每日分享'
           };
         }
       }
@@ -254,12 +279,12 @@ const API = {
 
     for (const api of apis) {
       try {
-        const res = await fetch(api.url, { signal: AbortSignal.timeout(8000) });
+        const res = await fetch(api.url, { signal: AbortSignal.timeout(5000) });
         if (!res.ok) continue;
         const data = await res.json();
         const parsed = api.parse(data);
-        if (parsed) return parsed;
-      } catch (e) {
+        if (parsed?.text) return parsed;
+      } catch (error) {
         continue;
       }
     }
@@ -267,75 +292,28 @@ const API = {
     return null;
   },
 
-  // 音乐推荐 - 真实API，带3小时缓存
-  async getMusicRecommendation() {
-    // 检查缓存
-    const cacheTime = await Storage.get('musicCacheTime') || 0;
-    const cached = await Storage.get('musicCache');
-    const now = Date.now();
-
-    if (cached && (now - cacheTime) < RECOMMENDATION_CACHE_WINDOW) {
-      return cached;
+  getFallbackProverb(forceNew = false) {
+    if (!this.chineseProverbs.length) return null;
+    if (forceNew) {
+      return this.chineseProverbs[Math.floor(Math.random() * this.chineseProverbs.length)];
     }
-
-    // 尝试从真实API获取音乐
-    const music = await this.fetchMusicFromAPI();
-    
-    if (!music) {
-      // 如果API失败，返回备用音乐
-      const fallbackMusic = [
-        { title: '晴天', artist: '周杰伦', album: '叶惠美', year: '2003', cover: 'https://picsum.photos/seed/music-qingtian/300/300.jpg', tags: ['流行', '华语'] },
-        { title: '海阔天空', artist: 'Beyond', album: '乐与怒', year: '1993', cover: 'https://picsum.photos/seed/music-haikuotian/300/300.jpg', tags: ['摇滚', '粤语'] },
-        { title: '夜曲', artist: '周杰伦', album: '十一月的萧邦', year: '2005', cover: 'https://picsum.photos/seed/music-yequ/300/300.jpg', tags: ['流行', '钢琴'] }
-      ];
-      const fallbackMusicItem = fallbackMusic[Math.floor(Math.random() * fallbackMusic.length)];
-      
-      await Storage.set('musicCache', fallbackMusicItem);
-      await Storage.set('musicCacheTime', now);
-      return fallbackMusicItem;
-    }
-
-    // 保存到缓存
-    await Storage.set('musicCache', music);
-    await Storage.set('musicCacheTime', now);
-
-    return music;
+    const todayKey = this.getDateKey();
+    const hash = this.hashString(todayKey);
+    return this.chineseProverbs[hash % this.chineseProverbs.length];
   },
 
-  // 从真实API获取音乐
-  async fetchMusicFromAPI() {
-    const apis = [
-      {
-        url: 'https://itunes.apple.com/search?term=chinese&entity=song&limit=25',
-        parse: (data) => {
-          if (!data.results || data.results.length === 0) return null;
-          const song = data.results[Math.floor(Math.random() * Math.min(10, data.results.length))];
-          return {
-            title: song.trackName || '歌曲标题',
-            artist: song.artistName || '艺术家',
-            album: song.collectionName || '专辑',
-            year: new Date(song.releaseDate).getFullYear().toString(),
-            cover: song.artworkUrl100?.replace('100x100', '300x300') || `https://picsum.photos/seed/music-${Date.now()}/300/300.jpg`,
-            tags: ['热门', song.primaryGenreName || '音乐']
-          };
-        }
-      }
-    ];
-
-    for (const api of apis) {
-      try {
-        const res = await fetch(api.url, { signal: AbortSignal.timeout(8000) });
-        if (!res.ok) continue;
-        const data = await res.json();
-        const parsed = api.parse(data);
-        if (parsed) return parsed;
-      } catch (e) {
-        continue;
-      }
-    }
-
-    return null;
+  getDateKey(date = new Date()) {
+    return date.toISOString().split('T')[0];
   },
+
+  hashString(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = (hash * 31 + str.charCodeAt(i)) & 0x7fffffff;
+    }
+    return hash;
+  },
+
 
   // 网页游戏推荐
   getGamesRecommendation() {
