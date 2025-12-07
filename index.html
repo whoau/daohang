@@ -118,48 +118,22 @@
           </div>
         </div>
 
-        <!-- 电影推荐小组件 
-        <div class="widget movie-widget" id="movieWidget">
+        <!-- 每日名言小组件 -->
+        <div class="widget proverb-widget" id="proverbWidget">
           <div class="widget-header">
-            <i class="fas fa-film"></i>
-            <span>电影推荐</span>
+            <i class="fas fa-quote-left"></i>
+            <span>每日名言</span>
+            <button class="widget-header-btn" id="refreshProverb" title="换一条">
+              <i class="fas fa-redo"></i>
+            </button>
           </div>
-          <div class="widget-content" id="movieContent">
-            <div class="movie-loading">
+          <div class="widget-content" id="proverbContent">
+            <div class="proverb-loading">
               <i class="fas fa-circle-notch fa-spin"></i>
               <span>加载中...</span>
             </div>
           </div>
         </div>
-
-        <!-- 书籍推荐小组件 
-        <div class="widget book-widget" id="bookWidget">
-          <div class="widget-header">
-            <i class="fas fa-book"></i>
-            <span>书籍推荐</span>
-          </div>
-          <div class="widget-content" id="bookContent">
-            <div class="book-loading">
-              <i class="fas fa-circle-notch fa-spin"></i>
-              <span>加载中...</span>
-            </div>
-          </div>
-        </div>
-
-        音乐推荐小组件 
-        <div class="widget music-widget" id="musicWidget">
-          <div class="widget-header">
-            <i class="fas fa-headphones"></i>
-            <span>音乐推荐</span>
-          </div>
-          <div class="widget-content" id="musicContent">
-            <div class="music-loading">
-              <i class="fas fa-circle-notch fa-spin"></i>
-              <span>加载中...</span>
-            </div>
-          </div>
-        </div>
--->
         <!-- 网页游戏小组件 -->
         <div class="widget games-widget" id="gamesWidget">
           <div class="widget-header">
@@ -379,27 +353,13 @@
                 <span class="slider"></span>
               </label>
             </div>
-           <!-- <div class="setting-item">
-              <label>电影推荐</label>
+            <div class="setting-item">
+              <label>每日名言</label>
               <label class="switch">
-                <input type="checkbox" id="showMovie" checked>
+                <input type="checkbox" id="showProverb" checked>
                 <span class="slider"></span>
               </label>
             </div>
-            <div class="setting-item">
-              <label>书籍推荐</label>
-              <label class="switch">
-                <input type="checkbox" id="showBook" checked>
-                <span class="slider"></span>
-              </label>
-            </div>
-            <div class="setting-item">
-              <label>音乐推荐</label>
-              <label class="switch">
-                <input type="checkbox" id="showMusic" checked>
-                <span class="slider"></span>
-              </label>
-            </div>-->
             <div class="setting-item">
               <label>网页游戏</label>
               <label class="switch">

@@ -111,230 +111,75 @@ const Widgets = {
     }
   },
 
-  // ==================== 电影推荐 ====================
-  async initMovie() {
-    const movieContent = document.getElementById('movieContent');
-    const movieModal = document.getElementById('movieModal');
-    const closeMovieModal = document.getElementById('closeMovieModal');
+  // ==================== 每日名言 ====================
+  async initProverb() {
+    const proverbContent = document.getElementById('proverbContent');
+    const refreshBtn = document.getElementById('refreshProverb');
 
-    if (!movieContent) return;
+    if (!proverbContent) return;
 
-    movieContent.innerHTML = `
-      <div class="movie-loading">
-        <i class="fas fa-circle-notch fa-spin"></i>
-        <span>加载中...</span>
-      </div>
-    `;
-
-    try {
-      const movie = await API.getMovieRecommendation();
-      if (!movie) throw new Error('获取电影失败');
-
-      this.currentMovie = movie;
-      const rawGenres = typeof movie.genre === 'string' ? movie.genre.split(/[,/]/) : [];
-      const genres = rawGenres.map(g => g.trim()).filter(Boolean).slice(0, 3);
-      const quotePreview = (movie.quote || '好电影总能治愈生活。').trim();
-      const displayQuote = quotePreview.length > 60 ? `${quotePreview.slice(0, 57)}...` : quotePreview;
-
-      movieContent.innerHTML = `
-        <div class="movie-card" id="movieCard">
-          <div class="movie-cover-section">
-            <img class="movie-poster" 
-              src="${movie.poster}" 
-              alt="${movie.title}"
-              onload="this.style.opacity='1';"
-              onerror="if(!this.dataset.retryCount) Widgets.retryImageLoad(this, 'https://picsum.photos/seed/movie-fallback/300/450.jpg'); else { this.style.display='none'; this.nextElementSibling.style.display='flex'; console.error('Movie poster failed to load:', this.src); }">
-            <div class="movie-cover-fallback" style="display:none;">
-              <i class="fas fa-film"></i>
-            </div>
-            <div class="movie-cover-overlay"></div>
-            <div class="movie-rating-badge">
-              <i class="fas fa-star"></i> ${movie.rating}
-            </div>
-          </div>
-          <div class="movie-info">
-            <div class="movie-title">${movie.title}</div>
-            <div class="movie-meta">
-              <span><i class="far fa-calendar-alt"></i> ${movie.year}</span>
-              <span><i class="far fa-user"></i> ${movie.director}</span>
-            </div>
-            <div class="movie-genre">
-              ${genres.map(g => `<span class="movie-genre-tag">${g}</span>`).join('')}
-            </div>
-            <div class="movie-quote-box">
-              <span class="movie-quote-text">${displayQuote}</span>
-            </div>
-          </div>
-        </div>
-      `;
-
-      document.getElementById('movieCard')?.addEventListener('click', () => {
-        this.showMovieDetail(movie);
+    if (refreshBtn && !refreshBtn.hasAttribute('data-bound')) {
+      refreshBtn.setAttribute('data-bound', 'true');
+      refreshBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        refreshBtn.classList.add('loading');
+        try {
+          await this.loadProverb(true);
+        } finally {
+          refreshBtn.classList.remove('loading');
+        }
       });
-
-    } catch (error) {
-      movieContent.innerHTML = `
-        <div class="movie-loading">
-          <i class="fas fa-film" style="font-size:24px;opacity:0.3;"></i>
-          <span>加载失败</span>
-          <button onclick="Widgets.initMovie()" class="retry-btn">
-            <i class="fas fa-redo"></i> 重试
-          </button>
-        </div>
-      `;
     }
 
-    closeMovieModal?.addEventListener('click', () => movieModal.classList.remove('show'));
-    movieModal?.addEventListener('click', (e) => {
-      if (e.target === movieModal) movieModal.classList.remove('show');
-    });
+    await this.loadProverb();
   },
 
-  showMovieDetail(movie) {
-    const movieModal = document.getElementById('movieModal');
-    const movieDetail = document.getElementById('movieDetail');
-    if (!movieModal || !movieDetail) return;
+  async loadProverb(forceNew = false) {
+    const proverbContent = document.getElementById('proverbContent');
+    if (!proverbContent) return;
 
-    const detailPlot = (movie.fullPlot || movie.quote || '故事梗概待更新。').trim();
-
-    movieDetail.innerHTML = `
-      <div class="movie-detail-header" style="background-image: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(26,26,32,1)), url('${movie.poster}');">
-        <img src="${movie.poster}" style="display:none;" onerror="this.parentElement.style.backgroundImage='linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(26,26,32,1))';">
-      </div>
-      <div class="movie-detail-info">
-        <div class="movie-detail-title">${movie.title}</div>
-        <div class="movie-detail-original">${movie.originalTitle} (${movie.year})</div>
-        <div class="movie-detail-stats">
-          <span><i class="fas fa-star" style="color:#f59e0b;"></i> ${movie.rating}</span>
-          <span><i class="fas fa-film"></i> ${movie.genre}</span>
-          <span><i class="fas fa-user"></i> ${movie.director}</span>
-        </div>
-        <div class="movie-detail-quote">"${detailPlot}"</div>
-      </div>
-    `;
-
-    movieModal.classList.add('show');
-  },
-
-  // ==================== 书籍推荐 ====================
-  async initBook() {
-    const bookContent = document.getElementById('bookContent');
-    if (!bookContent) return;
-
-    bookContent.innerHTML = `
-      <div class="book-loading">
+    proverbContent.innerHTML = `
+      <div class="proverb-loading">
         <i class="fas fa-circle-notch fa-spin"></i>
         <span>加载中...</span>
       </div>
     `;
 
     try {
-      const book = await API.getBookRecommendation();
-      if (!book) throw new Error('获取书籍失败');
+      const proverb = await API.getDailyProverb(forceNew);
+      if (!proverb) throw new Error('获取名言失败');
 
-      const bookDescSource = (book.description || '这本书口碑极佳，值得细细品读。').trim();
-      const bookDesc = bookDescSource.length > 120 ? `${bookDescSource.slice(0, 117)}...` : bookDescSource;
-
-      bookContent.innerHTML = `
-        <div class="book-card">
-          <div class="book-cover-section">
-            <div class="book-cover-wrap">
-              <div class="book-cover-inner">
-                <img class="book-cover" 
-                  src="${book.cover}" 
-                  alt="${book.title}"
-                  onload="this.style.opacity='1';"
-                  onerror="if(!this.dataset.retryCount) Widgets.retryImageLoad(this, 'https://picsum.photos/seed/book-fallback/300/450.jpg'); else { this.style.display='none'; this.nextElementSibling.style.display='flex'; console.error('Book cover failed to load:', this.src); }">
-                <div class="book-cover-fallback" style="display:none;">
-                  <i class="fas fa-book"></i>
-                </div>
-              </div>
-              <div class="book-rating">
-                <i class="fas fa-star"></i> ${book.rating}
-              </div>
-            </div>
-            <div class="book-brief-info">
-              <div class="book-title">${book.title}</div>
-              <div class="book-author">
-                <i class="fas fa-user-edit"></i> ${book.author}
-              </div>
-              <div class="book-category">${book.category}</div>
-            </div>
+      proverbContent.innerHTML = `
+        <div class="proverb-card">
+          <div class="proverb-icon">
+            <i class="fas fa-quote-left"></i>
           </div>
-          <div class="book-desc-box">
-            <span class="book-desc-text">${bookDesc}</span>
+          <div class="proverb-text">${this.escapeHtml(proverb.text)}</div>
+          <div class="proverb-meta">
+            <div class="proverb-author">
+              <i class="fas fa-feather-alt"></i>
+              ${this.escapeHtml(proverb.author || '佚名')}
+            </div>
+            ${proverb.source ? `
+              <div class="proverb-source">
+                <i class="fas fa-book-open"></i>
+                ${this.escapeHtml(proverb.source)}
+              </div>
+            ` : ''}
+            ${proverb.category ? `
+              <div class="proverb-category">
+                <span class="proverb-tag">${this.escapeHtml(proverb.category)}</span>
+              </div>
+            ` : ''}
           </div>
         </div>
       `;
-
     } catch (error) {
-      bookContent.innerHTML = `
-        <div class="book-loading">
-          <i class="fas fa-book" style="font-size:24px;opacity:0.3;"></i>
+      proverbContent.innerHTML = `
+        <div class="proverb-loading">
+          <i class="fas fa-quote-left" style="font-size:24px;opacity:0.3;"></i>
           <span>加载失败</span>
-          <button onclick="Widgets.initBook()" class="retry-btn">
-            <i class="fas fa-redo"></i> 重试
-          </button>
-        </div>
-      `;
-    }
-  },
-
-  // ==================== 音乐推荐 ====================
-  async initMusic() {
-    const musicContent = document.getElementById('musicContent');
-    if (!musicContent) return;
-
-    musicContent.innerHTML = `
-      <div class="music-loading">
-        <i class="fas fa-circle-notch fa-spin"></i>
-        <span>加载中...</span>
-      </div>
-    `;
-
-    try {
-      const music = await API.getMusicRecommendation();
-      if (!music) throw new Error('获取音乐失败');
-
-      const tags = Array.isArray(music.tags) && music.tags.length ? music.tags : ['精选', '随心听'];
-
-      musicContent.innerHTML = `
-        <div class="music-card">
-          <div class="music-cover-section">
-            <div class="music-vinyl-wrap">
-              <div class="music-cover-main">
-                <img class="music-cover" 
-                  src="${music.cover}" 
-                  alt="${music.title}"
-                  onload="this.style.opacity='1';"
-                  onerror="if(!this.dataset.retryCount) Widgets.retryImageLoad(this, 'https://picsum.photos/seed/music-fallback/300/300.jpg'); else { this.style.display='none'; this.nextElementSibling.style.display='flex'; console.error('Music cover failed to load:', this.src); }">
-                <div class="music-cover-fallback" style="display:none;">
-                  <i class="fas fa-music"></i>
-                </div>
-                <div class="music-play-overlay">
-                  <i class="fas fa-play"></i>
-                </div>
-              </div>
-              <div class="music-vinyl"></div>
-            </div>
-          </div>
-          <div class="music-info">
-            <div class="music-title">${music.title}</div>
-            <div class="music-artist">${music.artist}</div>
-            <div class="music-album">《${music.album}》· ${music.year}</div>
-            <div class="music-tags">
-              ${tags.map(tag => `<span class="music-tag">${tag}</span>`).join('')}
-            </div>
-          </div>
-        </div>
-      `;
-
-    } catch (error) {
-      musicContent.innerHTML = `
-        <div class="music-loading">
-          <i class="fas fa-music" style="font-size:24px;opacity:0.3;"></i>
-          <span>加载失败</span>
-          <button onclick="Widgets.initMusic()" class="retry-btn">
+          <button onclick="Widgets.loadProverb()" class="retry-btn">
             <i class="fas fa-redo"></i> 重试
           </button>
         </div>
@@ -690,9 +535,7 @@ const Widgets = {
   applyWidgetSettings(settings) {
     const widgets = {
       weatherWidget: settings.showWeather !== false,
-      movieWidget: settings.showMovie !== false,
-      bookWidget: settings.showBook !== false,
-      musicWidget: settings.showMusic !== false,
+      proverbWidget: settings.showProverb !== false,
       hotTopicsWidget: settings.showHotTopics !== false,
       todoWidget: settings.showTodo !== false,
       bookmarksWidget: settings.showBookmarks !== false,

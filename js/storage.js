@@ -18,9 +18,7 @@ const Storage = {
       use12Hour: false,
       showGreeting: true,
       showWeather: true,
-      showMovie: true,
-      showBook: true,
-      showMusic: true,
+      showProverb: true,
       showHotTopics: true,
       showTodo: true,
       showBookmarks: true,
@@ -47,12 +45,8 @@ const Storage = {
     lastWallpaperChange: 0,
     currentWallpaper: '',
     wallpaperHistory: [],
-    movieCache: null,
-    bookCache: null,
-    musicCache: null,
-    movieCacheTime: 0,
-    bookCacheTime: 0,
-    musicCacheTime: 0
+    proverbCache: null,
+    proverbCacheDate: null
   },
 
   async get(key) {
@@ -89,12 +83,8 @@ const Storage = {
     const lastWallpaperChange = await this.get('lastWallpaperChange');
     const currentWallpaper = await this.get('currentWallpaper');
     const wallpaperHistory = await this.get('wallpaperHistory');
-    const movieCache = await this.get('movieCache');
-    const bookCache = await this.get('bookCache');
-    const musicCache = await this.get('musicCache');
-    const movieCacheTime = await this.get('movieCacheTime');
-    const bookCacheTime = await this.get('bookCacheTime');
-    const musicCacheTime = await this.get('musicCacheTime');
+    const proverbCache = await this.get('proverbCache');
+    const proverbCacheDate = await this.get('proverbCacheDate');
 
     return {
       settings: { ...this.defaults.settings, ...settings },
@@ -106,12 +96,8 @@ const Storage = {
       lastWallpaperChange: lastWallpaperChange || 0,
       currentWallpaper: currentWallpaper || '',
       wallpaperHistory: wallpaperHistory || [],
-      movieCache: movieCache || null,
-      bookCache: bookCache || null,
-      musicCache: musicCache || null,
-      movieCacheTime: movieCacheTime || 0,
-      bookCacheTime: bookCacheTime || 0,
-      musicCacheTime: musicCacheTime || 0
+      proverbCache: proverbCache || null,
+      proverbCacheDate: proverbCacheDate || null
     };
   },
 
