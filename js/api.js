@@ -270,7 +270,7 @@ const API = {
           return {
             text: data.hitokoto.trim(),
             author: data.from_who || '',
-            source: data.from ? `《${data.from}》` : '佚名',
+            source: data.from || '',
             category: '每日分享'
           };
         }

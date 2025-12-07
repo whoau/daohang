@@ -114,22 +114,8 @@ const Widgets = {
   // ==================== 每日名言 ====================
   async initProverb() {
     const proverbContent = document.getElementById('proverbContent');
-    const refreshBtn = document.getElementById('refreshProverb');
 
     if (!proverbContent) return;
-
-    if (refreshBtn && !refreshBtn.hasAttribute('data-bound')) {
-      refreshBtn.setAttribute('data-bound', 'true');
-      refreshBtn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        refreshBtn.classList.add('loading');
-        try {
-          await this.loadProverb(true);
-        } finally {
-          refreshBtn.classList.remove('loading');
-        }
-      });
-    }
 
     await this.loadProverb();
   },
@@ -149,39 +135,24 @@ const Widgets = {
       const proverb = await API.getDailyProverb(forceNew);
       if (!proverb) throw new Error('获取名言失败');
 
+      let sourceText = '';
+      if (proverb.source && proverb.author) {
+        sourceText = `${this.escapeHtml(proverb.author)} —— ${this.escapeHtml(proverb.source)}`;
+      } else if (proverb.source) {
+        sourceText = `${this.escapeHtml(proverb.source)}`;
+      } else if (proverb.author) {
+        sourceText = `${this.escapeHtml(proverb.author)}`;
+      }
+
       proverbContent.innerHTML = `
-        <div class="proverb-card">
-          <div class="proverb-icon">
-            <i class="fas fa-quote-left"></i>
-          </div>
-          <div class="proverb-text">${this.escapeHtml(proverb.text)}</div>
-          <div class="proverb-meta">
-            <div class="proverb-author">
-              <i class="fas fa-feather-alt"></i>
-              ${this.escapeHtml(proverb.author || '佚名')}
-            </div>
-            ${proverb.source ? `
-              <div class="proverb-source">
-                <i class="fas fa-book-open"></i>
-                ${this.escapeHtml(proverb.source)}
-              </div>
-            ` : ''}
-            ${proverb.category ? `
-              <div class="proverb-category">
-                <span class="proverb-tag">${this.escapeHtml(proverb.category)}</span>
-              </div>
-            ` : ''}
-          </div>
-        </div>
+        <div class="proverb-text-only">${this.escapeHtml(proverb.text)}</div>
+        ${sourceText ? `<div class="proverb-source-only">${sourceText}</div>` : ''}
       `;
     } catch (error) {
       proverbContent.innerHTML = `
         <div class="proverb-loading">
-          <i class="fas fa-quote-left" style="font-size:24px;opacity:0.3;"></i>
+          <i class="fas fa-exclamation-circle" style="font-size:16px;opacity:0.3;"></i>
           <span>加载失败</span>
-          <button onclick="Widgets.loadProverb()" class="retry-btn">
-            <i class="fas fa-redo"></i> 重试
-          </button>
         </div>
       `;
     }
@@ -545,7 +516,13 @@ const Widgets = {
 
     Object.entries(widgets).forEach(([id, show]) => {
       const el = document.getElementById(id);
-      if (el) el.style.display = show ? 'flex' : 'none';
+      if (el) {
+        if (id === 'proverbWidget') {
+          el.style.display = show ? 'block' : 'none';
+        } else {
+          el.style.display = show ? 'flex' : 'none';
+        }
+      }
     });
   }
 };
