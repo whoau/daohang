@@ -471,11 +471,11 @@ body {
   }
   
   .weather-widget { grid-column: span 1; }
-  .proverb-widget { grid-column: span 1; }
   .hot-topics-widget { grid-column: span 1; grid-row: span 2; }
   .todo-widget { grid-column: span 1; }
   .bookmarks-widget { grid-column: span 2; }
   .notes-widget { grid-column: span 1; }
+  .games-widget { grid-column: span 1; }
 }
 
 /* 中屏幕 - 3列布局 */
@@ -485,11 +485,11 @@ body {
   }
   
   .weather-widget { grid-column: span 1; }
-  .proverb-widget { grid-column: span 1; }
   .hot-topics-widget { grid-column: span 1; grid-row: span 2; }
   .todo-widget { grid-column: span 1; }
   .bookmarks-widget { grid-column: span 2; }
   .notes-widget { grid-column: span 1; }
+  .games-widget { grid-column: span 1; }
 }
 
 /* 小屏幕 - 2列布局 */
@@ -499,11 +499,11 @@ body {
   }
   
   .weather-widget { grid-column: span 1; }
-  .proverb-widget { grid-column: span 1; }
   .hot-topics-widget { grid-column: span 1; }
   .todo-widget { grid-column: span 1; }
   .bookmarks-widget { grid-column: span 2; }
   .notes-widget { grid-column: span 1; }
+  .games-widget { grid-column: span 1; }
 }
 
 /* 手机屏幕 - 1列布局 */
@@ -513,11 +513,11 @@ body {
   }
   
   .weather-widget,
-  .proverb-widget,
   .hot-topics-widget,
   .todo-widget,
   .bookmarks-widget,
-  .notes-widget {
+  .notes-widget,
+  .games-widget {
     grid-column: span 1;
     grid-row: span 1;
   }
@@ -658,8 +658,15 @@ body {
 }
 
 /* ==================== 每日名言小组件 ==================== */
-.proverb-widget {
-  grid-column: span 1;
+.proverb-simple {
+  max-width: 750px;
+  margin: 0 auto 30px;
+  text-align: center;
+  animation: fadeInUp 0.8s ease 0.25s backwards;
+}
+
+.proverb-simple-content {
+  padding: 10px 20px;
 }
 
 .proverb-loading {
@@ -668,9 +675,44 @@ body {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-secondary);
-  height: 140px;
+  padding: 20px 0;
+}
+
+.proverb-text-only {
+  font-size: 18px;
+  line-height: 1.6;
+  font-weight: 300;
+  color: var(--text-color);
+  margin-bottom: 8px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.proverb-source-only {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-style: normal;
+  margin-top: 6px;
+}
+
+@media (max-width: 599px) {
+  .proverb-simple {
+    margin-bottom: 20px;
+  }
+  
+  .proverb-text-only {
+    font-size: 16px;
+  }
+  
+  .proverb-source-only {
+    font-size: 12px;
+  }
+}
+
+/* Old proverb widget styles (deprecated, kept for backwards compatibility) */
+.proverb-widget {
+  grid-column: span 1;
 }
 
 .proverb-card {
