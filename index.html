@@ -240,12 +240,24 @@
             <div class="setting-group" id="imageLibrarySettings" style="display:none;">
               <div class="setting-item">
                 <label>自动换壁纸</label>
-                <select id="autoChangeWallpaper">
-                  <option value="never">从不</option>
-                  <option value="newtab">每次打开新标签</option>
-                  <option value="hourly">每小时</option>
-                  <option value="daily">每天</option>
-                </select>
+                <div class="radio-group">
+                  <label class="radio-option">
+                    <input type="radio" name="autoChangeWallpaper" value="never" id="autoChangeNever">
+                    <span>从不</span>
+                  </label>
+                  <label class="radio-option">
+                    <input type="radio" name="autoChangeWallpaper" value="newtab" id="autoChangeNewtab">
+                    <span>每次打开新标签</span>
+                  </label>
+                  <label class="radio-option">
+                    <input type="radio" name="autoChangeWallpaper" value="hourly" id="autoChangeHourly">
+                    <span>每小时</span>
+                  </label>
+                  <label class="radio-option">
+                    <input type="radio" name="autoChangeWallpaper" value="daily" id="autoChangeDaily">
+                    <span>每天</span>
+                  </label>
+                </div>
               </div>
             </div>
 

@@ -395,6 +395,144 @@ const Widgets = {
     });
   },
 
+  // ==================== 拖放功能 ====================
+  initShortcutsDragDrop(grid, shortcuts, renderCallback) {
+    let draggedElement = null;
+    let draggedIndex = null;
+    let isDragging = false;
+    let touchStartTime = 0;
+    let touchItem = null;
+
+    // Mouse drag events
+    grid.addEventListener('dragstart', (e) => {
+      const item = e.target.closest('.shortcut-item');
+      if (!item) return;
+      
+      isDragging = true;
+      draggedElement = item;
+      draggedIndex = parseInt(item.dataset.index);
+      item.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/html', item.innerHTML);
+    });
+
+    grid.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      
+      const item = e.target.closest('.shortcut-item');
+      if (!item || item === draggedElement) return;
+      
+      item.classList.add('drag-over');
+    });
+
+    grid.addEventListener('dragleave', (e) => {
+      const item = e.target.closest('.shortcut-item');
+      if (item) {
+        item.classList.remove('drag-over');
+      }
+    });
+
+    grid.addEventListener('drop', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const dropTarget = e.target.closest('.shortcut-item');
+      if (!dropTarget || !draggedElement || dropTarget === draggedElement) {
+        this.clearDragState(grid);
+        isDragging = false;
+        return;
+      }
+      
+      const dropIndex = parseInt(dropTarget.dataset.index);
+      
+      // Reorder shortcuts
+      if (draggedIndex !== dropIndex) {
+        const draggedShortcut = shortcuts[draggedIndex];
+        shortcuts.splice(draggedIndex, 1);
+        shortcuts.splice(dropIndex, 0, draggedShortcut);
+        
+        // Save the new order
+        Storage.set('shortcuts', shortcuts);
+        
+        // Re-render
+        renderCallback();
+      }
+      
+      this.clearDragState(grid);
+      isDragging = false;
+    });
+
+    grid.addEventListener('dragend', () => {
+      this.clearDragState(grid);
+      isDragging = false;
+    });
+
+    // Touch support for mobile devices
+    grid.addEventListener('touchstart', (e) => {
+      const item = e.target.closest('.shortcut-item');
+      if (!item) return;
+      
+      touchStartTime = Date.now();
+      touchItem = item;
+    });
+
+    grid.addEventListener('touchmove', (e) => {
+      const item = e.target.closest('.shortcut-item');
+      if (!touchItem || !item) return;
+      
+      const elapsed = Date.now() - touchStartTime;
+      if (elapsed > 200) {
+        isDragging = true;
+        draggedElement = touchItem;
+        draggedIndex = parseInt(touchItem.dataset.index);
+        touchItem.classList.add('dragging');
+        
+        if (item !== touchItem) {
+          item.classList.add('drag-over');
+        }
+      }
+    });
+
+    grid.addEventListener('touchend', (e) => {
+      const item = e.target.closest('.shortcut-item');
+      
+      if (isDragging && item && item !== draggedElement) {
+        const dropIndex = parseInt(item.dataset.index);
+        
+        if (draggedIndex !== dropIndex) {
+          const draggedShortcut = shortcuts[draggedIndex];
+          shortcuts.splice(draggedIndex, 1);
+          shortcuts.splice(dropIndex, 0, draggedShortcut);
+          
+          Storage.set('shortcuts', shortcuts);
+          renderCallback();
+        }
+      }
+      
+      touchStartTime = 0;
+      touchItem = null;
+      this.clearDragState(grid);
+      isDragging = false;
+    });
+
+    // Prevent navigation when clicking on shortcuts during drag
+    grid.addEventListener('click', (e) => {
+      const item = e.target.closest('.shortcut-item');
+      if (isDragging && item && item.classList.contains('dragging')) {
+        e.preventDefault();
+        e.stopPropagation();
+        isDragging = false;
+      }
+    }, true);
+  },
+
+  clearDragState(grid) {
+    grid.querySelectorAll('.shortcut-item').forEach(item => {
+      item.classList.remove('dragging', 'drag-over');
+    });
+  },
+
   // ==================== 工具函数 ====================
   escapeHtml(text) {
     const div = document.createElement('div');

@@ -2,6 +2,9 @@
 const App = {
   wallpaperHistory: [],
   wallpaperIndex: -1,
+  wallpaperNewTabTimer: null,
+  wallpaperHourlyTimer: null,
+  wallpaperDailyTimer: null,
 
   async init() {
     console.log('App initializing...');
@@ -17,6 +20,8 @@ const App = {
     this.initBackground();
     this.initWallpaperControls();
     this.startPeriodicWallpaperUpdate();
+    // Initialize wallpaper timers based on current settings
+    this.updateWallpaperTimers(this.data.settings.autoChangeWallpaper || 'never');
     Search.init();
 
     // 初始化小组件
@@ -287,6 +292,26 @@ const App = {
     }
   },
 
+  updateWallpaperTimers(mode) {
+    // Clear all existing timers
+    if (this.wallpaperNewTabTimer) {
+      clearInterval(this.wallpaperNewTabTimer);
+      this.wallpaperNewTabTimer = null;
+    }
+    if (this.wallpaperHourlyTimer) {
+      clearInterval(this.wallpaperHourlyTimer);
+      this.wallpaperHourlyTimer = null;
+    }
+    if (this.wallpaperDailyTimer) {
+      clearInterval(this.wallpaperDailyTimer);
+      this.wallpaperDailyTimer = null;
+    }
+
+    // Only set timer for the selected mode (hourly and daily are handled via periodic check)
+    // The 'newtab' mode will be checked on each new tab open via shouldChangeWallpaper
+    console.log(`Wallpaper auto-change mode set to: ${mode}`);
+  },
+
   preloadImage(url) {
     return new Promise((resolve, reject) => {
       const img = new Image();
@@ -398,7 +423,7 @@ const App = {
         const initial = shortcut.name.charAt(0).toUpperCase();
         
         return `
-          <a href="${shortcut.url}" class="shortcut-item" data-index="${index}">
+          <a href="${shortcut.url}" class="shortcut-item" data-index="${index}" draggable="true">
             <button class="shortcut-delete" data-index="${index}">
               <i class="fas fa-times"></i>
             </button>
@@ -410,6 +435,9 @@ const App = {
           </a>
         `;
       }).join('');
+      
+      // Re-initialize drag and drop after rendering
+      Widgets.initShortcutsDragDrop(grid, shortcuts, renderShortcuts);
     };
 
     renderShortcuts();
@@ -633,14 +661,21 @@ const App = {
       });
     }
 
-    // 自动换壁纸
-    const autoChange = document.getElementById('autoChangeWallpaper');
-    if (autoChange) {
-      autoChange.value = settings.autoChangeWallpaper;
-      
-      autoChange.addEventListener('change', async (e) => {
-        settings.autoChangeWallpaper = e.target.value;
-        await this.saveAndApplySettings(settings);
+    // 自动换壁纸 - 单选按钮
+    const autoChangeRadios = document.querySelectorAll('input[name="autoChangeWallpaper"]');
+    if (autoChangeRadios.length > 0) {
+      const currentValue = settings.autoChangeWallpaper || 'never';
+      autoChangeRadios.forEach(radio => {
+        radio.checked = radio.value === currentValue;
+        
+        radio.addEventListener('change', async (e) => {
+          if (e.target.checked) {
+            settings.autoChangeWallpaper = e.target.value;
+            // Update wallpaper timers based on selection
+            this.updateWallpaperTimers(e.target.value);
+            await this.saveAndApplySettings(settings);
+          }
+        });
       });
     }
 
