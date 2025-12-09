@@ -85,6 +85,7 @@ const Storage = {
     const lastWallpaperChange = await this.get('lastWallpaperChange');
     const currentWallpaper = await this.get('currentWallpaper');
     const wallpaperHistory = await this.get('wallpaperHistory');
+    const wallpaperLibrary = await this.get('wallpaperLibrary');
     const proverbCache = await this.get('proverbCache');
     const proverbCacheDate = await this.get('proverbCacheDate');
     const proverbHistory = await this.get('proverbHistory');
@@ -99,6 +100,7 @@ const Storage = {
       lastWallpaperChange: lastWallpaperChange || 0,
       currentWallpaper: currentWallpaper || '',
       wallpaperHistory: wallpaperHistory || [],
+      wallpaperLibrary: { ...this.defaults.wallpaperLibrary, ...(wallpaperLibrary || {}) },
       proverbCache: proverbCache || null,
       proverbCacheDate: proverbCacheDate || null,
       proverbHistory: proverbHistory || []

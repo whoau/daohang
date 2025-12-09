@@ -1,64 +1,176 @@
 // API 统一管理模块
 const RECOMMENDATION_CACHE_WINDOW = 3 * 60 * 60 * 1000;
+const WALLPAPER_POOL_UPDATE_INTERVAL = 2 * 60 * 60 * 1000; // 2小时更新一次
+const WALLPAPER_POOL_TARGET_SIZE = 80; // 目标库存80+张
+const MAX_SHOWN_HISTORY = 100; // 记录最多100张已展示的壁纸
 
 const API = {
-  // 壁纸缓存池
-  wallpaperPool: {
+  // 壁纸库管理
+  wallpaperLibrary: {
     bing: [],
-    poolSize: 20,
-    lastPoolUpdate: 0,
-    
+    unsplash: [],
+    picsum: [],
+    shownWallpapers: [],
+    lastUpdated: 0,
+
+    async init() {
+      const lib = await Storage.get('wallpaperLibrary');
+      if (lib) {
+        this.bing = lib.bing || [];
+        this.unsplash = lib.unsplash || [];
+        this.picsum = lib.picsum || [];
+        this.shownWallpapers = lib.shownWallpapers || [];
+        this.lastUpdated = lib.lastUpdated || 0;
+      }
+      console.log(`壁纸库初始化: bing=${this.bing.length}, unsplash=${this.unsplash.length}, picsum=${this.picsum.length}`);
+    },
+
+    async save() {
+      const lib = {
+        bing: this.bing,
+        unsplash: this.unsplash,
+        picsum: this.picsum,
+        shownWallpapers: this.shownWallpapers,
+        lastUpdated: this.lastUpdated
+      };
+      await Storage.set('wallpaperLibrary', lib);
+    },
+
     async updatePool() {
       const now = Date.now();
-      if (now - this.lastPoolUpdate < 10 * 60 * 1000) return; // 10分钟缓存
-      
+      if (now - this.lastUpdated < WALLPAPER_POOL_UPDATE_INTERVAL) {
+        console.log('壁纸库更新间隔未到，跳过更新');
+        return;
+      }
+
       try {
-        const newWallpapers = [];
-        // 获取多个不同的壁纸
+        console.log('开始更新壁纸库...');
+        
+        // 并行更新所有源
+        await Promise.all([
+          this.updateBingPool(),
+          this.updateUnsplashPool(),
+          this.updatePicsumPool()
+        ]);
+
+        this.lastUpdated = now;
+        await this.save();
+        console.log(`壁纸库已更新: bing=${this.bing.length}, unsplash=${this.unsplash.length}, picsum=${this.picsum.length}`);
+      } catch (error) {
+        console.error('更新壁纸库失败:', error);
+      }
+    },
+
+    async updateBingPool() {
+      try {
+        const newWallpapers = new Set();
         const promises = [];
-        for (let i = 0; i < this.poolSize; i++) {
+        
+        // 获取50张Bing壁纸（尝试0-50的索引）
+        for (let i = 0; i < 50; i++) {
           promises.push(this.fetchBingWallpaper(i));
         }
-        
+
         const results = await Promise.allSettled(promises);
         for (const result of results) {
           if (result.status === 'fulfilled' && result.value) {
-            newWallpapers.push(result.value);
+            newWallpapers.add(result.value);
           }
         }
-        
-        // 去重并更新池
-        const uniqueWallpapers = [...new Set(newWallpapers.filter(Boolean))];
-        this.bing = uniqueWallpapers;
-        this.lastPoolUpdate = now;
-        
-        console.log(`壁纸池已更新: ${uniqueWallpapers.length}张壁纸`);
+
+        // 合并新壁纸，去重
+        const merged = new Set([...this.bing, ...newWallpapers]);
+        this.bing = Array.from(merged).slice(0, WALLPAPER_POOL_TARGET_SIZE);
+        console.log(`Bing池更新: ${this.bing.length}张`);
       } catch (error) {
-        console.error('更新壁纸池失败:', error);
+        console.error('更新Bing池失败:', error);
       }
     },
-    
+
+    async updateUnsplashPool() {
+      try {
+        const newWallpapers = new Set();
+        
+        // 从Unsplash生成多张图片URL（使用不同的搜索词）
+        const keywords = ['nature', 'landscape', 'city', 'abstract', 'minimalism', 'technology', 'space', 'ocean', 'mountains', 'sunset', 'forest', 'beach', 'desert', 'mountain', 'sky', 'water'];
+        for (const keyword of keywords) {
+          for (let i = 0; i < 5; i++) {
+            const randomId = Math.random().toString(36).substring(2, 15);
+            const url = `https://source.unsplash.com/1920x1080/?${keyword}&sig=${randomId}${Date.now()}`;
+            newWallpapers.add(url);
+          }
+        }
+
+        // 合并新壁纸
+        const merged = new Set([...this.unsplash, ...newWallpapers]);
+        this.unsplash = Array.from(merged).slice(0, WALLPAPER_POOL_TARGET_SIZE);
+        console.log(`Unsplash池更新: ${this.unsplash.length}张`);
+      } catch (error) {
+        console.error('更新Unsplash池失败:', error);
+      }
+    },
+
+    async updatePicsumPool() {
+      try {
+        const newWallpapers = new Set();
+        
+        // 从Picsum生成多张图片（使用seed参数获取不同的图片）
+        for (let i = 0; i < 60; i++) {
+          const seed = Math.floor(Math.random() * 10000) + i * 10000;
+          const url = `https://picsum.photos/1920/1080?random=${seed}`;
+          newWallpapers.add(url);
+        }
+
+        // 合并新壁纸
+        const merged = new Set([...this.picsum, ...newWallpapers]);
+        this.picsum = Array.from(merged).slice(0, WALLPAPER_POOL_TARGET_SIZE);
+        console.log(`Picsum池更新: ${this.picsum.length}张`);
+      } catch (error) {
+        console.error('更新Picsum池失败:', error);
+      }
+    },
+
     async fetchBingWallpaper(index) {
       try {
-        const res = await fetch(`https://bing.biturl.top/?resolution=1920&format=json&index=${index}&mkt=zh-CN&t=${Date.now()}`);
+        const res = await fetch(`https://bing.biturl.top/?resolution=1920&format=json&index=${index}&mkt=zh-CN&t=${Date.now()}`, {
+          signal: AbortSignal.timeout(5000)
+        });
+        if (!res.ok) return null;
         const data = await res.json();
-        return data.url;
+        return data.url || null;
       } catch {
         return null;
       }
     },
-    
-    getRandomWallpaper() {
-      if (this.bing.length === 0) return null;
-      const randomIndex = Math.floor(Math.random() * this.bing.length);
-      return this.bing[randomIndex];
-    },
-    
-    async ensurePool() {
-      if (this.bing.length === 0) {
-        await this.updatePool();
+
+    addToShownHistory(url) {
+      if (!url) return;
+      const index = this.shownWallpapers.indexOf(url);
+      if (index > -1) {
+        this.shownWallpapers.splice(index, 1);
       }
-      if (this.bing.length < 5) { // 如果少于5张，重新补充
+      this.shownWallpapers.unshift(url);
+      if (this.shownWallpapers.length > MAX_SHOWN_HISTORY) {
+        this.shownWallpapers = this.shownWallpapers.slice(0, MAX_SHOWN_HISTORY);
+      }
+    },
+
+    getRandomWallpaper(source) {
+      const pool = this[source] || [];
+      if (pool.length === 0) return null;
+      
+      // 优先选择未展示过的壁纸
+      const unshown = pool.filter(url => !this.shownWallpapers.includes(url));
+      const candidate = unshown.length > 0 ? unshown : pool;
+      
+      const randomIndex = Math.floor(Math.random() * candidate.length);
+      return candidate[randomIndex];
+    },
+
+    async ensurePoolFilled() {
+      // 如果任何池为空或即将用尽，立即更新
+      if (this.bing.length < 10 || this.unsplash.length < 10 || this.picsum.length < 10) {
+        this.lastUpdated = 0; // 强制更新
         await this.updatePool();
       }
     }
@@ -68,17 +180,23 @@ const API = {
   imageAPIs: {
     unsplash: {
       name: 'Unsplash',
-      getUrl: () => `https://source.unsplash.com/1920x1080/?t=${Date.now()}`
+      async getUrl() {
+        await API.wallpaperLibrary.ensurePoolFilled();
+        return API.wallpaperLibrary.getRandomWallpaper('unsplash') || `https://source.unsplash.com/1920x1080/?t=${Date.now()}`;
+      }
     },
     picsum: {
       name: 'Lorem Picsum',
-      getUrl: () => `https://picsum.photos/1920/1080?t=${Date.now()}`
+      async getUrl() {
+        await API.wallpaperLibrary.ensurePoolFilled();
+        return API.wallpaperLibrary.getRandomWallpaper('picsum') || `https://picsum.photos/1920/1080?t=${Date.now()}`;
+      }
     },
     bing: {
       name: '必应每日',
       async getUrl() {
-        await API.wallpaperPool.ensurePool();
-        return API.wallpaperPool.getRandomWallpaper() || `https://picsum.photos/1920/1080?t=${Date.now()}`;
+        await API.wallpaperLibrary.ensurePoolFilled();
+        return API.wallpaperLibrary.getRandomWallpaper('bing') || `https://picsum.photos/1920/1080?t=${Date.now()}`;
       }
     }
   },

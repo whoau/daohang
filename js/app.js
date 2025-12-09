@@ -6,25 +6,26 @@ const App = {
   async init() {
     console.log('App initializing...');
     await this.loadData();
-    
-    // 初始化壁纸池
-    await this.initWallpaperPool();
-    
+
+    // 初始化壁纸库
+    await this.initWallpaperLibrary();
+
     this.initClock();
     this.initGreeting();
     this.initShortcuts();
     this.initSettings();
     this.initBackground();
     this.initWallpaperControls();
+    this.startPeriodicWallpaperUpdate();
     Search.init();
-    
+
     // 初始化小组件
     const settings = this.data.settings;
     if (settings.showWeather !== false) Widgets.initWeather();
     if (settings.showProverb !== false) Widgets.initProverb();
     //if (settings.showMovie !== false) Widgets.initMovie();
-   // if (settings.showBook !== false) Widgets.initBook();
-    //if (settings.showMusic !== false) Widgets.initMusic();
+    // if (settings.showBook !== false) Widgets.initBook();
+     //if (settings.showMusic !== false) Widgets.initMusic();
     if (settings.showTodo !== false) Widgets.initTodo();
     if (settings.showBookmarks !== false) Widgets.initBookmarks();
     if (settings.showNotes !== false) Widgets.initNotes();
@@ -38,14 +39,26 @@ const App = {
     Widgets.applyWidgetSettings(this.data.settings);
   },
 
-  // 初始化壁纸池
-  async initWallpaperPool() {
+  // 初始化壁纸库
+  async initWallpaperLibrary() {
     try {
-      await API.wallpaperPool.updatePool();
-      console.log('壁纸池初始化完成');
+      await API.wallpaperLibrary.init();
+      await API.wallpaperLibrary.updatePool();
+      console.log('壁纸库初始化完成');
     } catch (error) {
-      console.warn('壁纸池初始化失败:', error);
+      console.warn('壁纸库初始化失败:', error);
     }
+  },
+
+  // 定期更新壁纸库（每30分钟一次）
+  startPeriodicWallpaperUpdate() {
+    setInterval(async () => {
+      try {
+        await API.wallpaperLibrary.updatePool();
+      } catch (error) {
+        console.error('定期更新壁纸库失败:', error);
+      }
+    }, 30 * 60 * 1000); // 30分钟
   },
 
   // 壁纸控制初始化
@@ -132,7 +145,15 @@ const App = {
     if (refreshBtn) refreshBtn.classList.add('loading');
 
     try {
-      await this.loadWallpaperFromAPI(this.data.settings.bgType, true);
+      // 根据当前背景类型智能获取壁纸
+      const bgType = this.data.settings.bgType;
+      
+      // 仅在使用图库源时更换壁纸
+      if (['bing', 'unsplash', 'picsum'].includes(bgType)) {
+        await this.loadWallpaperFromAPI(bgType, true);
+      } else {
+        this.showBgInfo('当前背景类型不支持自动更换');
+      }
     } finally {
       if (refreshBtn) refreshBtn.classList.remove('loading');
     }
@@ -208,19 +229,27 @@ const App = {
     }
 
     try {
-      let url;
-      
-      if (source === 'bing') {
-        url = await API.imageAPIs.bing.getUrl();
-      } else if (source === 'unsplash') {
-        url = `https://source.unsplash.com/1920x1080/?t=${Date.now()}`;
-      } else if (source === 'picsum') {
-        url = `https://picsum.photos/1920/1080?random=${Date.now()}`;
+      let url = null;
+
+      // 使用统一的API接口，自动从对应的库获取
+      if (source === 'bing' || source === 'unsplash' || source === 'picsum') {
+        const api = API.imageAPIs[source];
+        if (api) {
+          url = await api.getUrl();
+        }
       } else {
         url = await API.getRandomWallpaper(source);
       }
 
+      if (!url) {
+        throw new Error('无法获取壁纸');
+      }
+
       await this.preloadImage(url);
+      
+      // 记录为已展示的壁纸
+      API.wallpaperLibrary.addToShownHistory(url);
+      await API.wallpaperLibrary.save();
       
       this.applyWallpaperDirect(url);
       this.addToWallpaperHistory(url);
