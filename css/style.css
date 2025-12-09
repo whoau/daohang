@@ -432,6 +432,20 @@ body {
   opacity: 1;
 }
 
+/* 快捷方式拖动状态 */
+.shortcut-item.dragging {
+  opacity: 0.5;
+  transform: scale(0.95);
+  background: rgba(102, 126, 234, 0.2);
+  border-color: var(--primary-color);
+}
+
+.shortcut-item.drag-over {
+  background: rgba(102, 126, 234, 0.3);
+  border-color: var(--primary-color);
+  transform: scale(1.05);
+}
+
 .add-shortcut-btn {
   display: inline-flex;
   align-items: center;
@@ -1997,6 +2011,12 @@ body {
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 
+.setting-item:has(.radio-group) {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
 .setting-item label {
   font-size: 12px;
 }
@@ -2102,6 +2122,40 @@ input:checked + .slider {
 
 input:checked + .slider:before {
   transform: translateX(18px);
+}
+
+/* 单选按钮组样式 */
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.radio-option:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.radio-option input[type="radio"] {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary-color);
+}
+
+.radio-option span {
+  flex: 1;
 }
 
 /* 渐变预设 */
